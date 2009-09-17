@@ -1,0 +1,25 @@
+---
+name: HTML-Restrict
+version: 0.01
+author:
+  - 'Olaf Alders <olaf@wundercounter.com>'
+abstract: Strip unwanted HTML tags and attributes (beta)
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+build_requires:
+  Data::Dump: 0
+  HTML::Parser: 0
+  Moose: 0
+  MooseX::Params::Validate: 0
+  Perl6::Junction: 0
+  Scalar::Util: 0
+  Test::More: 0
+provides:
+  HTML::Restrict:
+    file: lib/HTML/Restrict.pm
+    version: 0.01
+generated_by: Module::Build version 0.3
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
