@@ -1,6 +1,6 @@
 ---
 name: HTML-Restrict
-version: 0.02
+version: 0.03
 author:
   - 'Olaf Alders <olaf@wundercounter.com>'
 abstract: Strip unwanted HTML tags and attributes (beta)
@@ -15,11 +15,13 @@ build_requires:
   Perl6::Junction: 0
   Scalar::Util: 0
   Test::More: 0
+configure_requires:
+  Module::Build: 0.34
 provides:
   HTML::Restrict:
     file: lib/HTML/Restrict.pm
-    version: 0.02
-generated_by: Module::Build version 0.3
+    version: 0.03
+generated_by: Module::Build version 0.34
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
