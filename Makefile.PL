@@ -2,19 +2,19 @@
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-          'PL_FILES' => {},
-          'INSTALLDIRS' => 'site',
           'NAME' => 'HTML::Restrict',
-          'EXE_FILES' => [],
           'VERSION_FROM' => 'lib/HTML/Restrict.pm',
           'PREREQ_PM' => {
-                           'Test::More' => 0,
-                           'Scalar::Util' => 0,
-                           'HTML::Parser' => 0,
                            'Data::Dump' => 0,
+                           'HTML::Parser' => 0,
+                           'Moose' => 0,
                            'MooseX::Params::Validate' => '0.12',
                            'Perl6::Junction' => 0,
-                           'Moose' => 0
-                         }
+                           'Scalar::Util' => 0,
+                           'Test::More' => 0
+                         },
+          'INSTALLDIRS' => 'site',
+          'EXE_FILES' => [],
+          'PL_FILES' => {}
         )
 ;
