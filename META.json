@@ -1,0 +1,60 @@
+{
+   "abstract" : "Strip unwanted HTML tags and attributes",
+   "author" : [
+      "Olaf Alders <olaf@wundercounter.com> (current maintainer)"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110440",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "HTML-Restrict",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Module::Build" : "0.3601"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.30",
+            "Module::Build" : "0.3601"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Data::Dump" : 0,
+            "HTML::Parser" : 0,
+            "Moose" : 0,
+            "MooseX::Params::Validate" : 0,
+            "Perl6::Junction" : 0
+         }
+      },
+      "test" : {
+         "requires" : {
+            "English" : 0,
+            "File::Spec" : 0,
+            "Test::More" : 0,
+            "Test::Perl::Critic" : 0
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "http://github.com/oalders/html-restrict/issues"
+      },
+      "homepage" : "http://github.com/oalders/html-restrict",
+      "repository" : {
+         "type" : "git",
+         "url" : "http://github.com/oalders/html-restrict",
+         "web" : "http://github.com/oalders/html-restrict"
+      }
+   },
+   "version" : "1.0.0"
+}
+
