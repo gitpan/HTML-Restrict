@@ -19,10 +19,10 @@ my %module_build_args = (
   },
   'dist_abstract' => 'Strip unwanted HTML tags and attributes',
   'dist_author' => [
-    'Olaf Alders <olaf@wundercounter.com> (current maintainer)'
+    'Olaf Alders <olaf@wundercounter.com>'
   ],
   'dist_name' => 'HTML-Restrict',
-  'dist_version' => '1.0.0',
+  'dist_version' => '1.0.1',
   'license' => 'perl',
   'module_name' => 'HTML::Restrict',
   'recommends' => {},

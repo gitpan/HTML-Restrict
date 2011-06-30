@@ -1,7 +1,7 @@
 {
    "abstract" : "Strip unwanted HTML tags and attributes",
    "author" : [
-      "Olaf Alders <olaf@wundercounter.com> (current maintainer)"
+      "Olaf Alders <olaf@wundercounter.com>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110440",
@@ -55,6 +55,6 @@
          "web" : "http://github.com/oalders/html-restrict"
       }
    },
-   "version" : "1.0.0"
+   "version" : "1.0.1"
 }
 

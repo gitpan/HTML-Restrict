@@ -1,6 +1,6 @@
 package HTML::Restrict;
 BEGIN {
-  $HTML::Restrict::VERSION = '1.0.0';
+  $HTML::Restrict::VERSION = '1.0.1';
 }
 
 use Moose;
@@ -43,7 +43,6 @@ has '_processed' => (
     isa     => 'Str',
     clearer => '_clear_processed',
 );
-
 
 sub _build_parser {
 
@@ -133,10 +132,10 @@ sub process {
 
 }
 
+1;    # End of HTML::Restrict
+
 # ABSTRACT: Strip unwanted HTML tags and attributes
 
-
-1;    # End of HTML::Restrict
 
 __END__
 =pod
@@ -147,7 +146,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 1.0.0
+version 1.0.1
 
 =head1 SYNOPSIS
 
@@ -180,14 +179,6 @@ supplying your own tag rules.
     my $processed = $hr->process( $html );
 
     # $processed now equals: <b>hello</b> <img src="pic.jpg" alt="me" />
-
-=head1 NAME
-
-HTML::Restrict - Strip unwanted HTML tags and attributes
-
-=head1 VERSION
-
-Version 1.0.0
 
 =head1 CONSTRUCTOR AND STARTUP
 
@@ -351,52 +342,8 @@ The idea is to be up and running quickly.
 
 =head1 SEE ALSO
 
-I<HTML::TagFilter>, I<HTML::Defang>, I<HTML::Declaw>, I<HTML::StripScripts>,
-I<HTML::Detoxifier>, I<HTML::Sanitizer>, I<HTML::Scrubber>
-
-=head1 AUTHOR
-
-Olaf Alders, C<< <olaf at wundercounter.com> >>
-
-=head1 BUGS AND LIMITATIONS
-
-Please report any bugs or feature requests to
-C<bug-html-restrict at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=HTML-Restrict>.  I will be
-notified, and then you'll automatically be notified of progress on your bug as
-I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc HTML::Restrict
-
-You can also look for information at:
-
-=over 4
-
-=item * GitHub Source Repository
-
-L<http://github.com/oalders/html-restrict>
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-Restrict>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/HTML-Restrict>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/HTML-Restrict>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/HTML-Restrict/>
-
-=back
+L<HTML::TagFilter>, L<HTML::Defang>, L<HTML::Declaw>, L<HTML::StripScripts>,
+L<HTML::Detoxifier>, L<HTML::Sanitizer>, L<HTML::Scrubber>
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -409,19 +356,9 @@ Mark Jubenville (ioncache)
 
 Duncan Forsyth
 
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2009 Olaf Alders.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
-
 =head1 AUTHOR
 
-Olaf Alders <olaf@wundercounter.com> (current maintainer)
+Olaf Alders <olaf@wundercounter.com>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -10,7 +10,7 @@ use ExtUtils::MakeMaker 6.30;
 
 my %WriteMakefileArgs = (
   'ABSTRACT' => 'Strip unwanted HTML tags and attributes',
-  'AUTHOR' => 'Olaf Alders <olaf@wundercounter.com> (current maintainer)',
+  'AUTHOR' => 'Olaf Alders <olaf@wundercounter.com>',
   'BUILD_REQUIRES' => {
     'English' => '0',
     'File::Spec' => '0',
@@ -33,7 +33,7 @@ my %WriteMakefileArgs = (
     'MooseX::Params::Validate' => '0',
     'Perl6::Junction' => '0'
   },
-  'VERSION' => '1.0.0',
+  'VERSION' => '1.0.1',
   'test' => {
     'TESTS' => 't/*.t'
   }
