@@ -9,33 +9,36 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'Strip unwanted HTML tags and attributes',
-  'AUTHOR' => 'Olaf Alders <olaf@wundercounter.com>',
-  'BUILD_REQUIRES' => {
-    'English' => '0',
-    'File::Spec' => '0',
-    'Module::Build' => '0.3601',
-    'Test::More' => '0',
-    'Test::Perl::Critic' => '0'
+  "ABSTRACT" => "Strip unwanted HTML tags and attributes",
+  "AUTHOR" => "Olaf Alders <olaf\@wundercounter.com>",
+  "BUILD_REQUIRES" => {
+    "English" => 0,
+    "File::Spec" => 0,
+    "Module::Build" => "0.3601",
+    "Test::More" => 0,
+    "Test::NoWarnings" => 0,
+    "Test::Perl::Critic" => 0,
+    "warnings" => 0
   },
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30',
-    'Module::Build' => '0.3601'
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30",
+    "Module::Build" => "0.3601"
   },
-  'DISTNAME' => 'HTML-Restrict',
-  'EXE_FILES' => [],
-  'LICENSE' => 'perl',
-  'NAME' => 'HTML::Restrict',
-  'PREREQ_PM' => {
-    'Data::Dump' => '0',
-    'HTML::Parser' => '0',
-    'Moose' => '0',
-    'MooseX::Params::Validate' => '0',
-    'Perl6::Junction' => '0'
+  "DISTNAME" => "HTML-Restrict",
+  "EXE_FILES" => [],
+  "LICENSE" => "perl",
+  "NAME" => "HTML::Restrict",
+  "PREREQ_PM" => {
+    "Data::Dump" => 0,
+    "HTML::Parser" => 0,
+    "Moose" => 0,
+    "MooseX::Params::Validate" => 0,
+    "Perl6::Junction" => 0,
+    "strict" => 0
   },
-  'VERSION' => '1.0.1',
-  'test' => {
-    'TESTS' => 't/*.t'
+  "VERSION" => "1.0.2",
+  "test" => {
+    "TESTS" => "t/*.t"
   }
 );
 

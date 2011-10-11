@@ -1,6 +1,8 @@
+use strict;
+
 package HTML::Restrict;
-BEGIN {
-  $HTML::Restrict::VERSION = '1.0.1';
+{
+  $HTML::Restrict::VERSION = '1.0.2';
 }
 
 use Moose;
@@ -40,7 +42,7 @@ has 'trim' => (
 
 has '_processed' => (
     is      => 'rw',
-    isa     => 'Str',
+    isa     => 'Maybe[Str]',
     clearer => '_clear_processed',
 );
 
@@ -122,7 +124,7 @@ sub process {
 
     my $text = $self->_processed;
 
-    if ( $self->trim ) {
+    if ( $self->trim && $text ) {
         $text =~ s{\A\s*}{}gxms;
         $text =~ s{\s*\z}{}gxms;
     }
@@ -146,7 +148,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 1.0.1
+version 1.0.2
 
 =head1 SYNOPSIS
 
@@ -159,13 +161,12 @@ supplying your own tag rules.
     my $hr = HTML::Restrict->new();
 
     # use default rules to start with (strip away all HTML)
-    my $processed = $hr->process('<b>i am bold</b>');
+    my $processed = $hr->process('  <b>i am bold</b>  ');
 
-    # $processed now equals: i am bold
+    # $processed now equals: 'i am bold'
 
-    ##########################################################################
     # Now, a less restrictive example:
-    ##########################################################################
+    ##################################
 
     use HTML::Restrict;
 
@@ -278,6 +279,13 @@ stripped down.
 By default all leading and trailing spaces will be removed when text is
 processed.  Set this value to 0 in order to disable this behaviour.
 
+For example, to preserve leading and trailing whitespace:
+
+    $hr->trim( 0 );
+    my $trimmed = $hr->process('  <b>i am bold</b>  ');
+
+    # $trimmed now equals: '  i am bold  '
+
 =back
 
 =head1 SUBROUTINES/METHODS
@@ -355,6 +363,8 @@ Thanks also to the following for patches and bug reports:
 Mark Jubenville (ioncache)
 
 Duncan Forsyth
+
+Rick Moore
 
 =head1 AUTHOR
 

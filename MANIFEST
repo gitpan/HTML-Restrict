@@ -7,8 +7,6 @@ META.json
 Makefile.PL
 README
 dist.ini
-html-restrict.komodoproject
-ignore.txt
 lib/HTML/Restrict.pm
 t/00-load.t
 t/author-critic.t
