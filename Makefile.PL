@@ -13,11 +13,9 @@ my %WriteMakefileArgs = (
   "AUTHOR" => "Olaf Alders <olaf\@wundercounter.com>",
   "BUILD_REQUIRES" => {
     "English" => 0,
-    "File::Spec" => 0,
     "Module::Build" => "0.3601",
+    "Scalar::Util" => 0,
     "Test::More" => 0,
-    "Test::NoWarnings" => 0,
-    "Test::Perl::Critic" => 0,
     "warnings" => 0
   },
   "CONFIGURE_REQUIRES" => {
@@ -31,12 +29,14 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Data::Dump" => 0,
     "HTML::Parser" => 0,
-    "Moose" => 0,
-    "MooseX::Params::Validate" => 0,
+    "Moo" => 0,
+    "MooX::Types::MooseLike::Base" => 0,
     "Perl6::Junction" => 0,
+    "Sub::Quote" => 0,
+    "URI" => 0,
     "strict" => 0
   },
-  "VERSION" => "1.0.2",
+  "VERSION" => "1.0.3",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -4,7 +4,7 @@
       "Olaf Alders <olaf@wundercounter.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300000, CPAN::Meta::Converter version 2.110930",
+   "generated_by" : "Dist::Zilla version 4.300010, CPAN::Meta::Converter version 2.120630",
    "license" : [
       "perl_5"
    ],
@@ -27,22 +27,22 @@
       },
       "runtime" : {
          "requires" : {
-            "Data::Dump" : 0,
-            "HTML::Parser" : 0,
-            "Moose" : 0,
-            "MooseX::Params::Validate" : 0,
-            "Perl6::Junction" : 0,
-            "strict" : 0
+            "Data::Dump" : "0",
+            "HTML::Parser" : "0",
+            "Moo" : "0",
+            "MooX::Types::MooseLike::Base" : "0",
+            "Perl6::Junction" : "0",
+            "Sub::Quote" : "0",
+            "URI" : "0",
+            "strict" : "0"
          }
       },
       "test" : {
          "requires" : {
-            "English" : 0,
-            "File::Spec" : 0,
-            "Test::More" : 0,
-            "Test::NoWarnings" : 0,
-            "Test::Perl::Critic" : 0,
-            "warnings" : 0
+            "English" : "0",
+            "Scalar::Util" : "0",
+            "Test::More" : "0",
+            "warnings" : "0"
          }
       }
    },
@@ -51,13 +51,13 @@
       "bugtracker" : {
          "web" : "http://github.com/oalders/html-restrict/issues"
       },
-      "homepage" : "http://github.com/oalders/html-restrict",
+      "homepage" : "https://github.com/oalders/html-restrict",
       "repository" : {
          "type" : "git",
-         "url" : "http://github.com/oalders/html-restrict",
-         "web" : "http://github.com/oalders/html-restrict"
+         "url" : "https://github.com/oalders/html-restrict.git",
+         "web" : "https://github.com/oalders/html-restrict"
       }
    },
-   "version" : "1.0.2"
+   "version" : "1.0.3"
 }
 

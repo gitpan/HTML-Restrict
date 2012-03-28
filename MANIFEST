@@ -11,8 +11,10 @@ lib/HTML/Restrict.pm
 t/00-load.t
 t/author-critic.t
 t/boilerplate.t
-t/critic.t
+t/comments.t
+t/declaration.t
 t/perlcriticrc
 t/pod-coverage.t
 t/pod.t
 t/release-pod-coverage.t
+t/xss.t

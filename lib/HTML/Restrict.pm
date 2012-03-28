@@ -2,27 +2,41 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '1.0.2';
+  $HTML::Restrict::VERSION = '1.0.3';
 }
 
-use Moose;
+use Moo;
+use Sub::Quote 'quote_sub';
 
 use Data::Dump qw( dump );
 use HTML::Parser;
-use MooseX::Params::Validate;
-use Perl6::Junction qw( any );
+use Perl6::Junction qw( any none );
+use MooX::Types::MooseLike::Base qw(Bool HashRef ArrayRef);
+use URI;
+
+has 'allow_comments' => (
+    is      => 'rw',
+    isa     => Bool,
+    default => quote_sub(q{ 0 }),
+);
+
+has 'allow_declaration' => (
+    is      => 'rw',
+    isa     => Bool,
+    default => quote_sub(q{ 0 }),
+);
 
 has 'debug' => (
     is      => 'rw',
-    isa     => 'Bool',
-    default => 0,
+    isa     => Bool,
+    default => quote_sub(q{ 0 }),
 );
 
 has 'rules' => (
     is       => 'rw',
-    isa      => 'HashRef',
+    isa      => HashRef,
     required => 0,
-    default  => sub { {} },
+    default  => quote_sub(q{ {} }),
     trigger  => \&_build_parser,
     reader   => 'get_rules',
     writer   => 'set_rules',
@@ -36,13 +50,25 @@ has 'parser' => (
 
 has 'trim' => (
     is      => 'rw',
-    isa     => 'Bool',
-    default => 1,
+    isa     => Bool,
+    default => quote_sub(q{ 1 }),
+);
+
+has 'uri_schemes' => (
+    is       => 'rw',
+    isa      => ArrayRef,
+    required => 0,
+    default  => sub { [ undef, 'http', 'https' ] },
+    reader   => 'get_uri_schemes',
+    writer   => 'set_uri_schemes',
 );
 
 has '_processed' => (
     is      => 'rw',
-    isa     => 'Maybe[Str]',
+    isa     => quote_sub(q{
+        die "$_[0] is not false or a string!"
+            unless !defined($_[0]) || $_[0] eq "" || "$_[0]" eq '0' || ref(\$_[0]) eq 'SCALAR'
+    }),
     clearer => '_clear_processed',
 );
 
@@ -54,11 +80,27 @@ sub _build_parser {
         start_h => [
             sub {
                 my ( $p, $tagname, $attr, $text ) = @_;
-                print "name:  $tagname", "\n" if $self->debug;
+                print "starting tag:  $tagname", "\n" if $self->debug;
 
                 my $more = q{};
-                if ( any( keys %{ $self->get_rules } ) eq $tagname ) {
+                if ( keys %{ $self->get_rules }
+                    && any( keys %{ $self->get_rules } ) eq $tagname )
+                {
                     print dump $attr if $self->debug;
+
+                    foreach my $source_type ( 'href', 'src' ) {
+
+                        if ( exists $attr->{$source_type}
+                            && $attr->{href} )
+                        {
+                            my $uri = URI->new( $attr->{$source_type} );
+                            delete $attr->{$source_type}
+                                if !$self->get_uri_schemes
+                                    || none( @{ $self->get_uri_schemes } ) eq
+                                    $uri->scheme;
+                        }
+                    }
+
                     foreach
                         my $attribute ( @{ $self->get_rules->{$tagname} } )
                     {
@@ -87,8 +129,10 @@ sub _build_parser {
         end_h => [
             sub {
                 my ( $p, $tagname, $attr, $text ) = @_;
-                if ( any( keys %{ $self->get_rules } ) eq $tagname ) {
-                    print "text: $text" if $self->debug;
+                if ( keys %{ $self->get_rules }
+                    && any( keys %{ $self->get_rules } ) eq $tagname )
+                {
+                    print "end: $text" if $self->debug;
                     $self->_processed( ( $self->_processed || q{} ) . $text );
                 }
             },
@@ -98,11 +142,35 @@ sub _build_parser {
         text_h => [
             sub {
                 my ( $p, $text ) = @_;
-                print "$text\n" if $self->debug;
+                print "text: $text\n" if $self->debug;
                 $self->_processed( ( $self->_processed || q{} ) . $text );
             },
             "self,text"
         ],
+
+        comment_h => [
+            sub {
+                my ( $p, $text ) = @_;
+                print "comment: $text\n" if $self->debug;
+                if ( $self->allow_comments ) {
+                    $self->_processed( ( $self->_processed || q{} ) . $text );
+                }
+            },
+            "self,text"
+        ],
+
+        declaration_h => [
+            sub {
+                my ( $p, $text ) = @_;
+                print "declaration: $text\n" if $self->debug;
+                if ( $self->allow_declaration ) {
+                    $self->_processed( ( $self->_processed || q{} ) . $text );
+                }
+            },
+            "self,text"
+        ],
+
+
     );
 
 }
@@ -115,7 +183,9 @@ sub process {
     return if !@_;
     return $_[0] if !$_[0];
 
-    my ( $content ) = pos_validated_list( \@_, { type => 'Str' }, );
+    my ( $content ) = @_;
+    die 'content must be a string!'
+        unless ref(\$content) eq 'SCALAR';
     $self->_clear_processed;
 
     my $parser = $self->parser;
@@ -148,13 +218,13 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 1.0.2
+version 1.0.3
 
 =head1 SYNOPSIS
 
-This module uses I<HTML::Parser> to strip HTML from text in a restrictive manner.
-By default all HTML is restricted.  You may alter the default behaviour by
-supplying your own tag rules.
+This module uses I<HTML::Parser> to strip HTML from text in a restrictive
+manner.  By default all HTML is restricted.  You may alter the default
+behaviour by supplying your own tag rules.
 
     use HTML::Restrict;
 
@@ -166,8 +236,6 @@ supplying your own tag rules.
     # $processed now equals: 'i am bold'
 
     # Now, a less restrictive example:
-    ##################################
-
     use HTML::Restrict;
 
     my $hr = HTML::Restrict->new();
@@ -189,9 +257,9 @@ Creates and returns a new HTML::Restrict object.
 
     my $hr = HTML::Restrict->new()
 
-HTML::Restrict doesn't require any params to be passed to new.  If your goal
-is to remove all HTML from text, then no further setup is required.  Just
-pass your text to the process() method and you're done:
+HTML::Restrict doesn't require any params to be passed to new.  If your goal is
+to remove all HTML from text, then no further setup is required.  Just pass
+your text to the process() method and you're done:
 
     my $plain_text = $hr->process( $html );
 
@@ -213,7 +281,7 @@ to allow a fair amount of HTML, you can try something like this:
         center  => [],
         em      => [],
         i       => [],
-        img     => [qw( alt border height width src style / )],
+        img     => [qw( alt border height width src style )],
         li      => [],
         ol      => [],
         p       => [qw(style)],
@@ -243,8 +311,8 @@ Allow bolded text, images and some (but not all) image attributes:
     );
     my $hr = HTML::Restrict->new( rules => \%rules );
 
-Since I<HTML::Parser> treats a closing slash as an attribute, you'll need to add
-"/" to your list of allowed attributes if you'd like your tags to retain
+Since I<HTML::Parser> treats a closing slash as an attribute, you'll need to
+add "/" to your list of allowed attributes if you'd like your tags to retain
 closing slashes.  For example:
 
     my $hr = HTML::Restrict->new( rules =>{ hr => [] } );
@@ -269,22 +337,43 @@ then your image tags will all be built like this:
 
     <img src=".." alt="..." title="..." width="..." height="..." id=".." />
 
-This gives you greater consistency in your tag layout.  If you don't care
-about element order you don't need to pay any attention to this, but you
-should be aware that your elements are being reconstructed rather than just
-stripped down.
+This gives you greater consistency in your tag layout.  If you don't care about
+element order you don't need to pay any attention to this, but you should be
+aware that your elements are being reconstructed rather than just stripped
+down.
 
 =item * C<< trim => [0|1] >>
 
 By default all leading and trailing spaces will be removed when text is
 processed.  Set this value to 0 in order to disable this behaviour.
 
-For example, to preserve leading and trailing whitespace:
+=item * C<< uri_schemes => [undef, 'http', 'https', 'irc', ... ] >>
 
-    $hr->trim( 0 );
-    my $trimmed = $hr->process('  <b>i am bold</b>  ');
+As of version 1.0.3, URI scheme checking is performed on all href and src tag
+attributes. The following schemes are allowed out of the box.  No action is
+required on your part:
 
-    # $trimmed now equals: '  i am bold  '
+    [ undef, 'http', 'https' ]
+
+(undef represents relative URIs). These restrictions have been put in place to
+prevent XSS in the form of:
+
+    <a href="javascript:alert(document.cookie)">click for cookie!</a>
+
+See L<URI> for more detailed info on scheme parsing.  If, for example, you
+wanted to filter out every scheme barring SSL, you would do it like this:
+
+    uri_schemes => ['https']
+
+This feature is new in 1.0.3.  Previous to this, there was no schema checking
+at all.  Moving forward, you'll need to whitelist explicitly all URI schemas
+which are not supported by default.  This is in keeping with the whitelisting
+behaviour of this module and is also the safest possible approach.  Keep in
+mind that changes to uri_schemes are not additive, so you'll need to include
+the defaults in any changes you make, should you wish to keep them:
+
+    # defaults + irc
+    uri_schemes => [ 'undef', 'http', 'https', 'irc' ]
 
 =back
 
@@ -298,9 +387,13 @@ resulting text.  Requires and returns a SCALAR.
 
 =head2 get_rules
 
-An accessor method, which returns a HASHREF of allowed tags and their
-allowed attributes.  Returns an empty HASHREF by default, since the default
-behaviour is to disallow all HTML.
+An accessor method, which returns a HASHREF of allowed tags and their allowed
+attributes.  Returns an empty HASHREF by default, since the default behaviour
+is to disallow all HTML.
+
+=head2 get_uri_schemes
+
+Accessor method which returns an ARRAYREF of allowed URI schemes.
 
 =head2 set_rules( \%rules )
 
@@ -326,23 +419,36 @@ For example:
     # return to defaults (no HTML allowed)
     $hr->set_rules({});
 
+=head2 set_uri_schemes
+
+Override existing URI schemes:
+
+    $hr->set_uri_schemes([ 'http', 'https', undef, 'ftp' ]);
+
 =head2 trim( 0|1 )
 
 By default all leading and trailing spaces will be removed when text is
 processed.  Set this value to 0 in order to disable this behaviour.
 
+For example, to allow leading and trailing whitespace:
+
+    $hr->trim( 0 );
+    my $trimmed = $hr->process('  <b>i am bold</b>  ');
+
+    # $trimmed now equals: '  i am bold  '
+
 =head1 MOTIVATION
 
-There are already several modules on the CPAN which accomplish much of the
-same thing, but after doing a lot of poking around, I was unable to find a
-solution with a simple setup which I was happy with.
+There are already several modules on the CPAN which accomplish much of the same
+thing, but after doing a lot of poking around, I was unable to find a solution
+with a simple setup which I was happy with.
 
 The most common use case might be stripping HTML from user submitted data
-completely or allowing just a few tags and attributes to be displayed.  This
-module doesn't do any validation on the actual content of the tags or
-attributes.  If this is a requirement, you can either mess with the
-parser object, post-process the text yourself or have a look at one of the
-more feature-rich modules in the SEE ALSO section below.
+completely or allowing just a few tags and attributes to be displayed.  With
+the exception of URI scheme checking, this module doesn't do any validation on
+the actual content of the tags or attributes.  If this is a requirement, you
+can either mess with the parser object, post-process the text yourself or have
+a look at one of the more feature-rich modules in the SEE ALSO section below.
 
 My aim here is to keep things easy and, hopefully, cover a lot of the less
 complex use cases with just a few lines of code and some brief documentation.
@@ -366,13 +472,15 @@ Duncan Forsyth
 
 Rick Moore
 
+Arthur Axel 'fREW' Schmidt
+
 =head1 AUTHOR
 
 Olaf Alders <olaf@wundercounter.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Olaf Alders.
+This software is copyright (c) 2012 by Olaf Alders.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
