@@ -2,7 +2,7 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '1.0.3';
+  $HTML::Restrict::VERSION = '1.0.4';
 }
 
 use Moo;
@@ -83,9 +83,7 @@ sub _build_parser {
                 print "starting tag:  $tagname", "\n" if $self->debug;
 
                 my $more = q{};
-                if ( keys %{ $self->get_rules }
-                    && any( keys %{ $self->get_rules } ) eq $tagname )
-                {
+                if ( any( keys %{ $self->get_rules } ) eq $tagname ) {
                     print dump $attr if $self->debug;
 
                     foreach my $source_type ( 'href', 'src' ) {
@@ -95,8 +93,7 @@ sub _build_parser {
                         {
                             my $uri = URI->new( $attr->{$source_type} );
                             delete $attr->{$source_type}
-                                if !$self->get_uri_schemes
-                                    || none( @{ $self->get_uri_schemes } ) eq
+                                if none( @{ $self->get_uri_schemes } ) eq
                                     $uri->scheme;
                         }
                     }
@@ -129,9 +126,7 @@ sub _build_parser {
         end_h => [
             sub {
                 my ( $p, $tagname, $attr, $text ) = @_;
-                if ( keys %{ $self->get_rules }
-                    && any( keys %{ $self->get_rules } ) eq $tagname )
-                {
+                if ( any( keys %{ $self->get_rules } ) eq $tagname ) {
                     print "end: $text" if $self->debug;
                     $self->_processed( ( $self->_processed || q{} ) . $text );
                 }
@@ -218,13 +213,9 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 1.0.3
+version 1.0.4
 
 =head1 SYNOPSIS
-
-This module uses I<HTML::Parser> to strip HTML from text in a restrictive
-manner.  By default all HTML is restricted.  You may alter the default
-behaviour by supplying your own tag rules.
 
     use HTML::Restrict;
 
@@ -248,6 +239,12 @@ behaviour by supplying your own tag rules.
     my $processed = $hr->process( $html );
 
     # $processed now equals: <b>hello</b> <img src="pic.jpg" alt="me" />
+
+=head1 DESCRIPTION
+
+This module uses I<HTML::Parser> to strip HTML from text in a restrictive
+manner.  By default all HTML is restricted.  You may alter the default
+behaviour by supplying your own tag rules.
 
 =head1 CONSTRUCTOR AND STARTUP
 
