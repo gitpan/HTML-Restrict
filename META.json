@@ -4,7 +4,7 @@
       "Olaf Alders <olaf@wundercounter.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300010, CPAN::Meta::Converter version 2.120630",
+   "generated_by" : "Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -13,6 +13,13 @@
       "version" : "2"
    },
    "name" : "HTML-Restrict",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "examples"
+      ]
+   },
    "prereqs" : {
       "build" : {
          "requires" : {
@@ -27,11 +34,13 @@
       },
       "runtime" : {
          "requires" : {
+            "Carp" : "0",
             "Data::Dump" : "0",
             "HTML::Parser" : "0",
             "Moo" : "0",
             "MooX::Types::MooseLike" : "0",
             "Perl6::Junction" : "0",
+            "Scalar::Util" : "0",
             "Sub::Quote" : "0",
             "URI" : "0",
             "strict" : "0"
@@ -39,8 +48,7 @@
       },
       "test" : {
          "requires" : {
-            "English" : "0",
-            "Scalar::Util" : "0",
+            "Test::Fatal" : "0",
             "Test::More" : "0",
             "warnings" : "0"
          }
@@ -58,6 +66,6 @@
          "web" : "https://github.com/oalders/html-restrict"
       }
    },
-   "version" : "1.0.4"
+   "version" : "2.0.0"
 }
 

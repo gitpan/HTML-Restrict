@@ -2,44 +2,36 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '1.0.4';
+  $HTML::Restrict::VERSION = '2.0.0';
 }
 
 use Moo;
-use Sub::Quote 'quote_sub';
 
+use Carp qw( croak );
 use Data::Dump qw( dump );
 use HTML::Parser;
 use Perl6::Junction qw( any none );
 use MooX::Types::MooseLike::Base qw(Bool HashRef ArrayRef);
+use Scalar::Util qw( reftype );
+use Sub::Quote 'quote_sub';
 use URI;
 
 has 'allow_comments' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub(q{ 0 }),
+    default => quote_sub( q{ 0 } ),
 );
 
 has 'allow_declaration' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub(q{ 0 }),
+    default => quote_sub( q{ 0 } ),
 );
 
 has 'debug' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub(q{ 0 }),
-);
-
-has 'rules' => (
-    is       => 'rw',
-    isa      => HashRef,
-    required => 0,
-    default  => quote_sub(q{ {} }),
-    trigger  => \&_build_parser,
-    reader   => 'get_rules',
-    writer   => 'set_rules',
+    default => quote_sub( q{ 0 } ),
 );
 
 has 'parser' => (
@@ -48,10 +40,26 @@ has 'parser' => (
     builder => '_build_parser',
 );
 
+has 'rules' => (
+    is       => 'rw',
+    isa      => HashRef,
+    required => 0,
+    default  => quote_sub( q{ {} } ),
+    trigger  => \&_build_parser,
+    reader   => 'get_rules',
+    writer   => 'set_rules',
+);
+
+has 'strip_enclosed_content' => (
+    is      => 'rw',
+    isa     => ArrayRef,
+    default => sub { ['script', 'style'] },
+);
+
 has 'trim' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub(q{ 1 }),
+    default => quote_sub( q{ 1 } ),
 );
 
 has 'uri_schemes' => (
@@ -64,37 +72,71 @@ has 'uri_schemes' => (
 );
 
 has '_processed' => (
-    is      => 'rw',
-    isa     => quote_sub(q{
+    is  => 'rw',
+    isa => quote_sub(
+        q{
         die "$_[0] is not false or a string!"
             unless !defined($_[0]) || $_[0] eq "" || "$_[0]" eq '0' || ref(\$_[0]) eq 'SCALAR'
-    }),
+    }
+    ),
     clearer => '_clear_processed',
+);
+
+has '_stripper_stack' => (
+    is      => 'rw',
+    isa     => ArrayRef,
+    default => sub { [] },
 );
 
 sub _build_parser {
 
-    my $self = shift;
+    my $self  = shift;
+    my $rules = shift;
+
+    # don't allow any upper case tag or attribute names
+    # these rules would otherwise silently be ignored
+    if ( $rules ) {
+        foreach my $tag_name ( keys %{$rules} ) {
+            if ( lc $tag_name ne $tag_name ) {
+                croak "All tag names must be lower cased";
+            }
+            if ( reftype $rules->{$tag_name} eq 'ARRAY' ) {
+                foreach my $attr_name ( @{ $rules->{$tag_name} } ) {
+                    if ( lc $attr_name ne $attr_name ) {
+                        croak "All attribute names must be lower cased";
+                    }
+                }
+            }
+        }
+    }
+
     return HTML::Parser->new(
 
         start_h => [
             sub {
                 my ( $p, $tagname, $attr, $text ) = @_;
                 print "starting tag:  $tagname", "\n" if $self->debug;
-
                 my $more = q{};
+
                 if ( any( keys %{ $self->get_rules } ) eq $tagname ) {
                     print dump $attr if $self->debug;
 
                     foreach my $source_type ( 'href', 'src' ) {
 
-                        if ( exists $attr->{$source_type}
-                            && $attr->{href} )
+                        if ( $attr->{$source_type} )
                         {
                             my $uri = URI->new( $attr->{$source_type} );
-                            delete $attr->{$source_type}
-                                if none( @{ $self->get_uri_schemes } ) eq
-                                    $uri->scheme;
+                            if (defined $uri->scheme) {
+                                delete $attr->{$source_type}
+                                    if none(
+                                        grep defined, @{ $self->get_uri_schemes }
+                                    ) eq $uri->scheme;
+                            }
+                            else {  # relative uri
+                                delete $attr->{$source_type}
+                                    unless grep !defined,
+                                        @{ $self->get_uri_schemes };
+                            }
                         }
                     }
 
@@ -119,6 +161,13 @@ sub _build_parser {
 
                     $self->_processed( ( $self->_processed || q{} ) . $elem );
                 }
+                elsif (
+                    any( @{ $self->strip_enclosed_content } ) eq $tagname )
+                {
+                    print "adding $tagname to strippers" if $self->debug;
+                    push @{ $self->_stripper_stack }, $tagname;
+                }
+
             },
             "self,tagname,attr,text"
         ],
@@ -126,10 +175,16 @@ sub _build_parser {
         end_h => [
             sub {
                 my ( $p, $tagname, $attr, $text ) = @_;
+                print "end: $text\n" if $self->debug;
                 if ( any( keys %{ $self->get_rules } ) eq $tagname ) {
-                    print "end: $text" if $self->debug;
                     $self->_processed( ( $self->_processed || q{} ) . $text );
                 }
+                elsif (
+                    any( @{ $self->_stripper_stack } ) eq $tagname )
+                {
+                    $self->_delete_tag_from_stack( $tagname );
+                }
+
             },
             "self,tagname,attr,text"
         ],
@@ -138,7 +193,9 @@ sub _build_parser {
             sub {
                 my ( $p, $text ) = @_;
                 print "text: $text\n" if $self->debug;
-                $self->_processed( ( $self->_processed || q{} ) . $text );
+                if ( !@{$self->_stripper_stack} ) {
+                    $self->_processed( ( $self->_processed || q{} ) . $text );
+                }
             },
             "self,text"
         ],
@@ -165,7 +222,6 @@ sub _build_parser {
             "self,text"
         ],
 
-
     );
 
 }
@@ -180,7 +236,7 @@ sub process {
 
     my ( $content ) = @_;
     die 'content must be a string!'
-        unless ref(\$content) eq 'SCALAR';
+        unless ref( \$content ) eq 'SCALAR';
     $self->_clear_processed;
 
     my $parser = $self->parser;
@@ -195,16 +251,43 @@ sub process {
     }
     $self->_processed( $text );
 
+    # ensure stripper stack is reset in case of broken html
+    $self->_stripper_stack([ ]);
+
     return $self->_processed;
 
+}
+
+# strip_enclosed_content tags could be nested in the source HTML, so we
+# maintain a stack of these tags.
+
+sub _delete_tag_from_stack {
+
+    my $self        = shift;
+    my $closing_tag = shift;
+
+    my $found    = 0;
+    my @tag_list = ();
+
+    foreach my $tag ( reverse @{ $self->_stripper_stack } ) {
+        if ( $tag eq $closing_tag && $found == 0 ) {
+            $found = 1;
+            next;
+        }
+        push @tag_list, $tag;
+    }
+
+    $self->_stripper_stack( [ reverse @tag_list ] );
+
+    return;
 }
 
 1;    # End of HTML::Restrict
 
 # ABSTRACT: Strip unwanted HTML tags and attributes
 
-
 __END__
+
 =pod
 
 =head1 NAME
@@ -213,7 +296,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 1.0.4
+version 2.0.0
 
 =head1 SYNOPSIS
 
@@ -266,6 +349,13 @@ HTML::Restrict recognizes:
 =over 4
 
 =item * C<< rules => \%rules >>
+
+Sets the rules which will be used to process your data.  By default all HTML
+tags are off limits.  Use this argument to define the HTML elements and
+corresponding attributes you'd like to use.  Essentially, consider the default
+behaviour to be:
+
+    rules => {}
 
 Rules should be passed as a HASHREF of allowed tags.  Each hash value should
 represent the allowed attributes for the listed tag.  For example, if you want
@@ -339,6 +429,14 @@ element order you don't need to pay any attention to this, but you should be
 aware that your elements are being reconstructed rather than just stripped
 down.
 
+Also note that all tag and attribute names must be supplied in lower case.
+
+    # correct
+    my $hr = HTML::Restrict->new( rules => { body => ['onload'] } );
+
+    # throws a fatal error
+    my $hr = HTML::Restrict->new( rules => { Body => ['onLoad'] } );
+
 =item * C<< trim => [0|1] >>
 
 By default all leading and trailing spaces will be removed when text is
@@ -369,8 +467,63 @@ behaviour of this module and is also the safest possible approach.  Keep in
 mind that changes to uri_schemes are not additive, so you'll need to include
 the defaults in any changes you make, should you wish to keep them:
 
-    # defaults + irc
-    uri_schemes => [ 'undef', 'http', 'https', 'irc' ]
+    # defaults + irc + mailto
+    uri_schemes => [ 'undef', 'http', 'https', 'irc', 'mailto' ]
+
+=item * allow_declaration => [0|1]
+
+Set this value to true if you'd like to allow/preserve DOCTYPE declarations in
+your content.  Useful when cleaning up your own static files or templates. This
+feature is off by default.
+
+    my $html = q[<!doctype html><body>foo</body>];
+
+    my $hr = HTML::Restrict->new( allow_declaration => 1 );
+    $html = $hr->process( $html );
+    # $html is now: "<!doctype html>foo"
+
+=item * allow_comments => [0|1]
+
+Set this value to true if you'd like to allow/preserve HTML comments in your
+content.  Useful when cleaning up your own static files or templates. This
+feature is off by default.
+
+    my $html = q[<body><!-- comments! -->foo</body>];
+
+    my $hr = HTML::Restrict->new( allow_comments => 1 );
+    $html = $hr->process( $html );
+    # $html is now: "<!-- comments! -->foo"
+
+=item * strip_enclosed_content => [0|1]
+
+The default behaviour up to 1.0.4 was to preserve the content between script
+and style tags, even when the tags themselves were being deleted.  So, you'd be
+left with a bunch of JavaScript or CSS, just with the enclosing tags missing.
+This is almost never what you want, so starting at 1.0.5 the default will be to
+remove any script or style info which is enclosed in these tags, unless they
+have specifically been whitelisted in the rules.  This will be a sane default
+when cleaning up content submitted via a web form.  However, if you're using
+HTML::Restrict to purge your own HTML you can be more restrictive.
+
+    # strip the head section, in addition to JS and CSS
+    my $html = '<html><head>...</head><body>...<script>JS here</script>foo';
+
+    my $hr = HTML::Restrict->new(
+        strip_enclosed_content => [ 'script', 'style', 'head' ]
+    );
+
+    $html = $hr->process( $html );
+    # $html is now '<html><body>...foo';
+
+The caveat here is that HTML::Restrict will not try to fix broken HTML. In the
+above example, if you have any opening script, style or head tags which don't
+also include matching closing tags, all following content will be stripped
+away, regardless of any parent tags.
+
+Keep in mind that changes to strip_enclosed_content are not additive, so if you
+are adding additional tags you'll need to include the entire list of tags whose
+enclosed content you'd like to remove.  This feature strips script and style
+tags by default.
 
 =back
 
@@ -381,58 +534,6 @@ the defaults in any changes you make, should you wish to keep them:
 This is the method which does the real work.  It parses your data, removes any
 tags and attributes which are not specifically allowed and returns the
 resulting text.  Requires and returns a SCALAR.
-
-=head2 get_rules
-
-An accessor method, which returns a HASHREF of allowed tags and their allowed
-attributes.  Returns an empty HASHREF by default, since the default behaviour
-is to disallow all HTML.
-
-=head2 get_uri_schemes
-
-Accessor method which returns an ARRAYREF of allowed URI schemes.
-
-=head2 set_rules( \%rules )
-
-Sets the rules which will be used to process your data.  By default all HTML
-tags are off limits.  Use this method to define the HTML elements and
-corresponding attributes you'd like to use.
-
-If you only need to set rules once, you might want to pass them to the new()
-method when constructing the object, but you may also set your rules using
-set_rules().  If you want to apply different rules to different data without
-creating a new object each time, set_rules() will handle changing the object's
-behaviour for you.
-
-Please note that set_rules is a mutator method, so your changes are not
-cumulative.  The last rules passed to the set_rules method are the rules which
-will be applied to your data when it is processed.
-
-For example:
-
-    # create object which allows only a and img tags
-    my $hr = HTML::Restrict->new( rules => { a => [ ...], img => [ ... ] } );
-
-    # return to defaults (no HTML allowed)
-    $hr->set_rules({});
-
-=head2 set_uri_schemes
-
-Override existing URI schemes:
-
-    $hr->set_uri_schemes([ 'http', 'https', undef, 'ftp' ]);
-
-=head2 trim( 0|1 )
-
-By default all leading and trailing spaces will be removed when text is
-processed.  Set this value to 0 in order to disable this behaviour.
-
-For example, to allow leading and trailing whitespace:
-
-    $hr->trim( 0 );
-    my $trimmed = $hr->process('  <b>i am bold</b>  ');
-
-    # $trimmed now equals: '  i am bold  '
 
 =head1 MOTIVATION
 
@@ -471,16 +572,17 @@ Rick Moore
 
 Arthur Axel 'fREW' Schmidt
 
+perlpong
+
 =head1 AUTHOR
 
 Olaf Alders <olaf@wundercounter.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Olaf Alders.
+This software is copyright (c) 2013 by Olaf Alders.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

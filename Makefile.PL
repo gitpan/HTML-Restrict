@@ -12,9 +12,8 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "Strip unwanted HTML tags and attributes",
   "AUTHOR" => "Olaf Alders <olaf\@wundercounter.com>",
   "BUILD_REQUIRES" => {
-    "English" => 0,
     "Module::Build" => "0.3601",
-    "Scalar::Util" => 0,
+    "Test::Fatal" => 0,
     "Test::More" => 0,
     "warnings" => 0
   },
@@ -27,16 +26,18 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "HTML::Restrict",
   "PREREQ_PM" => {
+    "Carp" => 0,
     "Data::Dump" => 0,
     "HTML::Parser" => 0,
     "Moo" => 0,
     "MooX::Types::MooseLike" => 0,
     "Perl6::Junction" => 0,
+    "Scalar::Util" => 0,
     "Sub::Quote" => 0,
     "URI" => 0,
     "strict" => 0
   },
-  "VERSION" => "1.0.4",
+  "VERSION" => "2.0.0",
   "test" => {
     "TESTS" => "t/*.t"
   }

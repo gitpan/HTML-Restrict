@@ -7,9 +7,8 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   "build_requires" => {
-    "English" => 0,
     "Module::Build" => "0.3601",
-    "Scalar::Util" => 0,
+    "Test::Fatal" => 0,
     "Test::More" => 0,
     "warnings" => 0
   },
@@ -22,17 +21,19 @@ my %module_build_args = (
     "Olaf Alders <olaf\@wundercounter.com>"
   ],
   "dist_name" => "HTML-Restrict",
-  "dist_version" => "1.0.4",
+  "dist_version" => "2.0.0",
   "license" => "perl",
   "module_name" => "HTML::Restrict",
   "recommends" => {},
   "recursive_test_files" => 1,
   "requires" => {
+    "Carp" => 0,
     "Data::Dump" => 0,
     "HTML::Parser" => 0,
     "Moo" => 0,
     "MooX::Types::MooseLike" => 0,
     "Perl6::Junction" => 0,
+    "Scalar::Util" => 0,
     "Sub::Quote" => 0,
     "URI" => 0,
     "strict" => 0
