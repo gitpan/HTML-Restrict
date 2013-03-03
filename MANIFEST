@@ -10,6 +10,7 @@ dist.ini
 examples/sanitize_file.pl
 lib/HTML/Restrict.pm
 t/00-load.t
+t/attribute_constraints.t
 t/author-critic.t
 t/comments.t
 t/declaration.t
