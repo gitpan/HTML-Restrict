@@ -2,7 +2,7 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '2.1.0';
+  $HTML::Restrict::VERSION = '2.1.1';
 }
 
 use Moo;
@@ -312,7 +312,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.1.0
+version 2.1.1
 
 =head1 SYNOPSIS
 
@@ -328,11 +328,12 @@ version 2.1.0
     # Now, a less restrictive example:
     use HTML::Restrict;
 
-    my $hr = HTML::Restrict->new();
-    $hr->set_rules({
-        b   => [],
-        img => [qw( src alt / )]
-    });
+    my $hr = HTML::Restrict->new(
+        rules => {
+            b   => [],
+            img => [qw( src alt / )]
+        }
+    );
 
     my $html = q[<body><b>hello</b> <img src="pic.jpg" alt="me" id="test" /></body>];
     my $processed = $hr->process( $html );
