@@ -4,7 +4,7 @@
       "Olaf Alders <olaf@wundercounter.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300031, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -66,6 +66,12 @@
          "web" : "https://github.com/oalders/html-restrict"
       }
    },
-   "version" : "2.1.1"
+   "version" : "2.1.2",
+   "x_contributors" : [
+      "Arthur Axel 'fREW' Schmidt <frioux@gmail.com>",
+      "Mark Jubenville <mark@raybec.com>",
+      "Olaf Alders <olaf@wundersolutions.com>",
+      "perlpong <calyx238@gmail.com>"
+   ]
 }
 

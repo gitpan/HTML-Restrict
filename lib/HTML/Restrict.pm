@@ -2,7 +2,7 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '2.1.1';
+  $HTML::Restrict::VERSION = '2.1.2';
 }
 
 use Moo;
@@ -312,7 +312,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.1.1
+version 2.1.2
 
 =head1 SYNOPSIS
 
