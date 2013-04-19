@@ -19,6 +19,7 @@ t/js.t
 t/lowercase.t
 t/perlcriticrc
 t/pod.t
+t/replace_img.t
 t/scheme.t
 t/stack.t
 t/style.t

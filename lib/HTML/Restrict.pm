@@ -2,7 +2,7 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '2.1.2';
+  $HTML::Restrict::VERSION = '2.1.3';
 }
 
 use Moo;
@@ -11,7 +11,7 @@ use Carp qw( croak );
 use Data::Dump qw( dump );
 use HTML::Parser;
 use Perl6::Junction qw( any none );
-use MooX::Types::MooseLike::Base qw(Bool HashRef ArrayRef);
+use MooX::Types::MooseLike::Base qw(Bool HashRef ArrayRef CodeRef AnyOf);
 use Scalar::Util qw( reftype );
 use Sub::Quote 'quote_sub';
 use URI;
@@ -54,6 +54,12 @@ has 'strip_enclosed_content' => (
     is      => 'rw',
     isa     => ArrayRef,
     default => sub { ['script', 'style'] },
+);
+
+has 'replace_img' => (
+    is      => 'rw',
+    isa     => AnyOf[Bool, CodeRef],
+    default => 0,
 );
 
 has 'trim' => (
@@ -126,7 +132,7 @@ sub _build_parser {
                 if ( any( keys %{ $self->get_rules } ) eq $tagname ) {
                     print dump $attr if $self->debug;
 
-                    foreach my $source_type ( 'href', 'src' ) {
+                    foreach my $source_type ( 'href', 'src', 'cite' ) {
 
                         if ( $attr->{$source_type} )
                         {
@@ -176,6 +182,17 @@ sub _build_parser {
                     $elem =~ s{\s+}{ }gxms;
 
                     $self->_processed( ( $self->_processed || q{} ) . $elem );
+                }
+                elsif ( $tagname eq 'img' && $self->replace_img ) {
+                    my $alt;
+                    if ( ref $self->replace_img ) {
+                        $alt = $self->replace_img->($tagname, $attr, $text);
+                    }
+                    else {
+                        $alt = defined( $attr->{alt} ) ? ": $attr->{alt}" : "";
+                        $alt = "[IMAGE$alt]";
+                    }
+                    $self->_processed( ( $self->_processed || q{} ) . $alt );
                 }
                 elsif (
                     any( @{ $self->strip_enclosed_content } ) eq $tagname )
@@ -312,7 +329,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.1.2
+version 2.1.3
 
 =head1 SYNOPSIS
 
@@ -522,6 +539,23 @@ feature is off by default.
     my $hr = HTML::Restrict->new( allow_comments => 1 );
     $html = $hr->process( $html );
     # $html is now: "<!-- comments! -->foo"
+
+=item * replace_img => [0|1|CodeRef]
+
+Set the value to true if you'd like to have img tags replaced with
+C<[IMAGE: ...]> containing the alt attribute text.  If you set it to a
+code reference, you can provide your own replacement (which may
+even contain HTML).
+
+    sub replacer {
+        my ($tagname, $attr, $text) = @_; # from HTML::Parser
+        return qq{<a href="$attr->{src}">IMAGE: $attr->{alt}</a>};
+    }
+
+    my $hr = HTML::Restrict->new( replace_img => \&replacer );
+
+This attribute will only take effect if the img tag is not included
+in the allowed HTML.
 
 =item * strip_enclosed_content => [0|1]
 
