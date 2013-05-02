@@ -66,10 +66,11 @@
          "web" : "https://github.com/oalders/html-restrict"
       }
    },
-   "version" : "2.1.4",
+   "version" : "2.1.5",
    "x_contributors" : [
       "Arthur Axel 'fREW' Schmidt <frioux@gmail.com>",
       "David Golden <dagolden@cpan.org>",
+      "Graham TerMarsch <graham@howlingfrog.com>",
       "Mark Jubenville <mark@raybec.com>",
       "Olaf Alders <olaf@wundersolutions.com>",
       "perlpong <calyx238@gmail.com>"

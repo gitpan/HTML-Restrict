@@ -17,6 +17,7 @@ t/comments.t
 t/declaration.t
 t/js.t
 t/lowercase.t
+t/memory-leak.t
 t/perlcriticrc
 t/pod.t
 t/replace_img.t

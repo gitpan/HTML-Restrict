@@ -2,7 +2,7 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '2.1.4';
+  $HTML::Restrict::VERSION = '2.1.5';
 }
 
 use Moo 1.001000;
@@ -35,9 +35,10 @@ has 'debug' => (
 );
 
 has 'parser' => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_parser',
+    is       => 'ro',
+    lazy     => 1,
+    builder  => '_build_parser',
+    weak_ref => 1,
 );
 
 has 'rules' => (
@@ -329,7 +330,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.1.4
+version 2.1.5
 
 =head1 SYNOPSIS
 
@@ -647,6 +648,10 @@ Rick Moore
 Arthur Axel 'fREW' Schmidt
 
 perlpong
+
+David Golden
+
+Graham TerMarsch
 
 =head1 AUTHOR
 

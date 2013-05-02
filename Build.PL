@@ -18,7 +18,7 @@ my %module_build_args = (
     "Olaf Alders <olaf\@wundercounter.com>"
   ],
   "dist_name" => "HTML-Restrict",
-  "dist_version" => "2.1.4",
+  "dist_version" => "2.1.5",
   "license" => "perl",
   "module_name" => "HTML::Restrict",
   "recommends" => {},
