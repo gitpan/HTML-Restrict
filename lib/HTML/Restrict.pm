@@ -2,43 +2,44 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '2.1.5';
+  $HTML::Restrict::VERSION = '2.1.6';
 }
 
-use Moo 1.001000;
+use namespace::autoclean;
+
+use Moo 1.002000;
 
 use Carp qw( croak );
 use Data::Dump qw( dump );
 use HTML::Parser;
-use Perl6::Junction qw( any none );
 use MooX::Types::MooseLike::Base qw(Bool HashRef ArrayRef CodeRef AnyOf);
-use Scalar::Util qw( reftype );
+use Perl6::Junction qw( any none );
+use Scalar::Util qw( reftype weaken );
 use Sub::Quote 'quote_sub';
 use URI;
 
 has 'allow_comments' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub( q{ 0 } ),
+    default => 0,
 );
 
 has 'allow_declaration' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub( q{ 0 } ),
+    default => 0,
 );
 
 has 'debug' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub( q{ 0 } ),
+    default => 0,
 );
 
 has 'parser' => (
     is       => 'ro',
     lazy     => 1,
     builder  => '_build_parser',
-    weak_ref => 1,
 );
 
 has 'rules' => (
@@ -66,7 +67,7 @@ has 'replace_img' => (
 has 'trim' => (
     is      => 'rw',
     isa     => Bool,
-    default => quote_sub( q{ 1 } ),
+    default => 1,
 );
 
 has 'uri_schemes' => (
@@ -122,6 +123,7 @@ sub _build_parser {
         }
     }
 
+    weaken( $self );
     return HTML::Parser->new(
 
         start_h => [
@@ -330,7 +332,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.1.5
+version 2.1.6
 
 =head1 SYNOPSIS
 
@@ -363,6 +365,8 @@ version 2.1.5
 This module uses L<HTML::Parser> to strip HTML from text in a restrictive
 manner.  By default all HTML is restricted.  You may alter the default
 behaviour by supplying your own tag rules.
+
+=encoding utf8
 
 =head1 CONSTRUCTOR AND STARTUP
 
@@ -637,7 +641,7 @@ L<HTML::Detoxifier>, L<HTML::Sanitizer>, L<HTML::Scrubber>
 Thanks to Raybec Communications L<http://www.raybec.com> for funding my
 work on this module and for releasing it to the world.
 
-Thanks also to the following for patches and bug reports:
+Thanks also to the following for patches, bug reports and assistance:
 
 Mark Jubenville (ioncache)
 
@@ -652,6 +656,12 @@ perlpong
 David Golden
 
 Graham TerMarsch
+
+Dagfinn Ilmari Mannsåker
+
+Graham Knop
+
+Carwyn Ellis
 
 =head1 AUTHOR
 
