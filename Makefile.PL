@@ -26,9 +26,9 @@ my %WriteMakefileArgs = (
     "Carp" => 0,
     "Data::Dump" => 0,
     "HTML::Parser" => 0,
+    "List::MoreUtils" => 0,
     "Moo" => "1.002000",
     "MooX::Types::MooseLike" => "0.23",
-    "Perl6::Junction" => 0,
     "Scalar::Util" => 0,
     "Sub::Quote" => 0,
     "URI" => 0,
@@ -40,7 +40,7 @@ my %WriteMakefileArgs = (
     "Test::More" => 0,
     "warnings" => 0
   },
-  "VERSION" => "2.1.6",
+  "VERSION" => "2.1.7",
   "test" => {
     "TESTS" => "t/*.t"
   }
