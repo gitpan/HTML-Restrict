@@ -2,7 +2,7 @@ use strict;
 
 package HTML::Restrict;
 {
-  $HTML::Restrict::VERSION = '2.1.7';
+  $HTML::Restrict::VERSION = '2.1.8';
 }
 
 use namespace::autoclean;
@@ -331,7 +331,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.1.7
+version 2.1.8
 
 =head1 SYNOPSIS
 
