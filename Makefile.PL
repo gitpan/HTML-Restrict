@@ -32,7 +32,7 @@ my %WriteMakefileArgs = (
     "Scalar::Util" => 0,
     "Sub::Quote" => 0,
     "URI" => 0,
-    "namespace::autoclean" => 0,
+    "namespace::clean" => 0,
     "strict" => 0
   },
   "TEST_REQUIRES" => {
@@ -40,37 +40,36 @@ my %WriteMakefileArgs = (
     "Test::More" => 0,
     "warnings" => 0
   },
-  "VERSION" => "2.1.8",
+  "VERSION" => "2.1.9",
   "test" => {
     "TESTS" => "t/*.t"
   }
 );
 
 
-unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
-  my $tr = delete $WriteMakefileArgs{TEST_REQUIRES};
-  my $br = $WriteMakefileArgs{BUILD_REQUIRES};
-  for my $mod ( keys %$tr ) {
-    if ( exists $br->{$mod} ) {
-      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
-    }
-    else {
-      $br->{$mod} = $tr->{$mod};
-    }
-  }
-}
+my %FallbackPrereqs = (
+  "Carp" => 0,
+  "Data::Dump" => 0,
+  "HTML::Parser" => 0,
+  "List::MoreUtils" => 0,
+  "Module::Build" => "0.3601",
+  "Moo" => "1.002000",
+  "MooX::Types::MooseLike" => "0.23",
+  "Scalar::Util" => 0,
+  "Sub::Quote" => 0,
+  "Test::Fatal" => 0,
+  "Test::More" => 0,
+  "URI" => 0,
+  "namespace::clean" => 0,
+  "strict" => 0,
+  "warnings" => 0
+);
 
-unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
-  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
-  my $pp = $WriteMakefileArgs{PREREQ_PM};
-  for my $mod ( keys %$br ) {
-    if ( exists $pp->{$mod} ) {
-      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
-    }
-    else {
-      $pp->{$mod} = $br->{$mod};
-    }
-  }
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
+  delete $WriteMakefileArgs{TEST_REQUIRES};
+  delete $WriteMakefileArgs{BUILD_REQUIRES};
+  $WriteMakefileArgs{PREREQ_PM} = \%FallbackPrereqs;
 }
 
 delete $WriteMakefileArgs{CONFIGURE_REQUIRES}

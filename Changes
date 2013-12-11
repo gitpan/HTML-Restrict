@@ -1,5 +1,8 @@
 Revision history for HTML-Restrict
 
+{{$NEXT}}
+        - Swaps namespace::clean for namespace::autoclean. (Fitz Elliott)
+
 2.1.8   2013-06-06
         - Unlike 2.1.7, This release doesn't contain a local::lib.
 

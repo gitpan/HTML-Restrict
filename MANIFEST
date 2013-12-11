@@ -21,6 +21,7 @@ t/lowercase.t
 t/memory-leak.t
 t/perlcriticrc
 t/pod.t
+t/release-cpan-changes.t
 t/replace_img.t
 t/scheme.t
 t/stack.t
