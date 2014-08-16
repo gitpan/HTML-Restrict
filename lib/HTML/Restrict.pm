@@ -1,10 +1,7 @@
 use strict;
 
 package HTML::Restrict;
-{
-  $HTML::Restrict::VERSION = '2.1.9';
-}
-
+$HTML::Restrict::VERSION = '2.2.0';
 use Carp qw( croak );
 use Data::Dump qw( dump );
 use HTML::Parser;
@@ -324,13 +321,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.1.9
+version 2.2.0
 
 =head1 SYNOPSIS
 
@@ -363,8 +362,6 @@ version 2.1.9
 This module uses L<HTML::Parser> to strip HTML from text in a restrictive
 manner.  By default all HTML is restricted.  You may alter the default
 behaviour by supplying your own tag rules.
-
-=encoding utf8
 
 =head1 CONSTRUCTOR AND STARTUP
 
