@@ -1,11 +1,11 @@
 use strict;
 
 package HTML::Restrict;
-$HTML::Restrict::VERSION = '2.2.0';
+$HTML::Restrict::VERSION = '2.2.1';
 use Carp qw( croak );
 use Data::Dump qw( dump );
 use HTML::Parser;
-use MooX::Types::MooseLike::Base qw(Bool HashRef ArrayRef CodeRef AnyOf);
+use Types::Standard qw[ Bool HashRef ArrayRef CodeRef ];
 use List::MoreUtils qw( any none );
 use Scalar::Util qw( reftype weaken );
 use Sub::Quote 'quote_sub';
@@ -56,7 +56,7 @@ has 'strip_enclosed_content' => (
 
 has 'replace_img' => (
     is      => 'rw',
-    isa     => AnyOf[Bool, CodeRef],
+    isa     =>  Bool | CodeRef,
     default => 0,
 );
 
@@ -329,7 +329,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.2.0
+version 2.2.1
 
 =head1 SYNOPSIS
 
