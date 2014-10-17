@@ -19,7 +19,7 @@ my %module_build_args = (
     "Olaf Alders <olaf\@wundercounter.com>"
   ],
   "dist_name" => "HTML-Restrict",
-  "dist_version" => "2.2.1",
+  "dist_version" => "2.2.2",
   "license" => "perl",
   "module_name" => "HTML::Restrict",
   "recommends" => {},
@@ -27,6 +27,7 @@ my %module_build_args = (
   "requires" => {
     "Carp" => 0,
     "Data::Dump" => 0,
+    "HTML::Entities" => 0,
     "HTML::Parser" => 0,
     "List::MoreUtils" => 0,
     "Moo" => "1.002000",
@@ -36,6 +37,7 @@ my %module_build_args = (
     "Types::Standard" => 0,
     "URI" => 0,
     "namespace::clean" => 0,
+    "perl" => "5.006",
     "strict" => 0
   },
   "script_files" => [],

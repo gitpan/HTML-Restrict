@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-
+use 5.006;
 
 use ExtUtils::MakeMaker ;
 
@@ -26,6 +26,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Carp" => 0,
     "Data::Dump" => 0,
+    "HTML::Entities" => 0,
     "HTML::Parser" => 0,
     "List::MoreUtils" => 0,
     "Moo" => "1.002000",
@@ -42,7 +43,7 @@ my %WriteMakefileArgs = (
     "Test::More" => 0,
     "warnings" => 0
   },
-  "VERSION" => "2.2.1",
+  "VERSION" => "2.2.2",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -52,6 +53,7 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Carp" => 0,
   "Data::Dump" => 0,
+  "HTML::Entities" => 0,
   "HTML::Parser" => 0,
   "List::MoreUtils" => 0,
   "Module::Build" => "0.28",

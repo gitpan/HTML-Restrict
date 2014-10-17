@@ -1,10 +1,12 @@
 use strict;
+use 5.006;
 
 package HTML::Restrict;
-$HTML::Restrict::VERSION = '2.2.1';
+$HTML::Restrict::VERSION = '2.2.2';
 use Carp qw( croak );
 use Data::Dump qw( dump );
 use HTML::Parser;
+use HTML::Entities qw( encode_entities );
 use Types::Standard qw[ Bool HashRef ArrayRef CodeRef ];
 use List::MoreUtils qw( any none );
 use Scalar::Util qw( reftype weaken );
@@ -156,7 +158,8 @@ sub _build_parser {
                             # validate against regex contraints
                             for my $attr_name (sort keys %$attr_item) {
                                 if ( exists $attr->{$attr_name} ) {
-                                    $more .= qq[ $attr_name="$attr->{$attr_name}" ]
+                                    my $value = encode_entities($attr->{$attr_name});
+                                    $more .= qq[ $attr_name="$value" ]
                                         if $attr->{$attr_name} =~ $attr_item->{$attr_name};
                                 }
                             }
@@ -164,7 +167,8 @@ sub _build_parser {
                         else {
                             my $attr_name = $attr_item;
                             if ( exists $attr->{$attr_name} ) {
-                                $more .= qq[ $attr_name="$attr->{$attr_name}" ]
+                                my $value = encode_entities($attr->{$attr_name});
+                                $more .= qq[ $attr_name="$value" ]
                                     unless $attr_name eq q{/};
                             }
                         }
@@ -329,7 +333,7 @@ HTML::Restrict - Strip unwanted HTML tags and attributes
 
 =head1 VERSION
 
-version 2.2.1
+version 2.2.2
 
 =head1 SYNOPSIS
 
